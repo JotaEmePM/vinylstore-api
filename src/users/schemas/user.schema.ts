@@ -5,48 +5,54 @@ export type UserDocument = HydratedDocument<User>
 
 @Schema()
 export class User {
-  @Prop()
-  name: string
+	@Prop()
+	name: string
 
-  @Prop()
-  enabled: boolean
+	@Prop()
+	enabled: boolean
 
-  @Prop()
-  roles: string[]
+	@Prop()
+	roles: string[]
 
-  @Prop()
-  email: UserEmail[]
+	@Prop()
+	email: UserEmail[]
 
-  @Prop()
-  password: UserPassword[]
+	@Prop()
+	password: UserPassword[]
+
+	@Prop()
+	creationDate: Date
 }
 
 export class UserEmail {
-  @Prop()
-  email: string
+	@Prop()
+	email: string
 
-  @Prop()
-  hash: string
+	@Prop()
+	hash: string
 
-  @Prop()
-  confirmed: boolean
+	@Prop()
+	confirmed: boolean
 
-  @Prop()
-  date: Date
+	@Prop()
+	creationDate: Date
+
+	@Prop()
+	endDate: Date | null
 }
 
 export class UserPassword {
-  @Prop()
-  password: string
+	@Prop()
+	hash: string
 
-  @Prop()
-  hash: string
+	@Prop()
+	salt: string
 
-  @Prop()
-  salt: string
+	@Prop()
+	creationDate: Date
 
-  @Prop()
-  date: Date
+	@Prop()
+	endDate: Date | null
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)
