@@ -5,6 +5,22 @@ export function generateUUID(): string {
 	return uuidv4()
 }
 
+export function hashPasswordWithSalt(
+	password: string,
+	salt: string,
+): {
+	salt: string
+	hashedPassword: string
+} {
+	const hashedPassword = crypto
+		.pbkdf2Sync(password, salt, 1000, 64, `sha512`)
+		.toString(`hex`)
+	return {
+		salt,
+		hashedPassword,
+	}
+}
+
 export function hashPassword(password: string): {
 	salt: string
 	hashedPassword: string

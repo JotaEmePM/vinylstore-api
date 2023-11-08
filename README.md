@@ -19,9 +19,18 @@ API de muestra de una tienda de vinilos, desarrollada solo para fines de evidenc
 
 ### Features
 
+- [ ] Implementar /changepassword
+- [ ] Implementar /resetpassword
+- [ ] Implementar /changepwfromreset
 - [ ] Implementación JWT
+- [ ] Implementación Login
+- [ ] Implementar envío correo
 
 ### Fixes
 
 - [X] Eliminar nodo array "password" de operación GET /users/all
-- [ ] Eliminar nodo array "password" de operación GET /users
+- [X] Eliminar nodo array "password" de operación GET /users
+
+## I/D
+
+- [ ] Buscar servicios gratuitos/bajo costo para envío de correo/sms/whatsapp masivos.

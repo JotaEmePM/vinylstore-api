@@ -53,6 +53,9 @@ export class UserPassword {
 
 	@Prop()
 	endDate: Date | null
+
+	@Prop()
+	validationCode: string
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)
