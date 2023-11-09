@@ -26,7 +26,8 @@ export class UsersController {
 	@Get('/')
 	@ApiOperation({ summary: 'Get all users' })
 	async findAll(): Promise<SelectUserDto[]> {
-		return this.usersService.findAll()
+		const response = await this.usersService.findAll()
+		return response.Value
 	}
 
 	@Post()
@@ -116,11 +117,7 @@ export class UsersController {
 		type: User,
 	})
 	async confirmEmail(@Body() params: { uid: string; hash: string }) {
-		const user = await this.usersService.findOne(params.uid)
-
-		if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
-
-		return await this.usersService.confirmEmail(user.uid, params.hash)
+		return await this.usersService.confirmEmail(params.uid, params.hash)
 	}
 
 	@Put('/changeemail')
@@ -131,11 +128,7 @@ export class UsersController {
 		type: User,
 	})
 	async changeEmail(@Body() params: { uid: string; newEmail: string }) {
-		const user = await this.usersService.findOne(params.uid)
-
-		if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
-
-		return await this.usersService.changeEmail(user.uid, params.newEmail)
+		return await this.usersService.changeEmail(params.uid, params.newEmail)
 	}
 
 	@Put('/addrole')
@@ -153,11 +146,7 @@ export class UsersController {
 			throw new HttpException('Role not found', HttpStatus.NOT_FOUND)
 		}
 
-		const user = await this.usersService.findOne(params.uid)
-
-		if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
-
-		return await this.usersService.AddRole(user.uid, params.role)
+		return await this.usersService.AddRole(params.uid, params.role)
 	}
 
 	@Put('/removerole')
@@ -175,28 +164,23 @@ export class UsersController {
 			throw new HttpException('Role not found', HttpStatus.NOT_FOUND)
 		}
 
-		const user = await this.usersService.findOne(params.uid)
-
-		if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
-
-		return await this.usersService.RemoveRole(user.uid, params.role)
+		return await this.usersService.RemoveRole(params.uid, params.role)
 	}
 
-	// TODO: Change password
-	// @Put('/changepassword')
-	// @ApiOperation({ summary: 'Change user password' })
-	// @ApiResponse({
-	// 	status: 200,
-	// 	description: 'The user password  has been successfully changed.',
-	// 	type: User,
-	// })
-	// async changePassword(
-	// 	@Body() params: { uid: string; oldPassword: string; newPassword: string },
-	// ) {
-	// 	const user = await this.usersService.findOne(params.uid)
-
-	// 	if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
-
-	// 	return await this.usersService.changePassword(user.uid, params.oldPassword, params.newPassword)
-	// }
+	@Put('/changepassword')
+	@ApiOperation({ summary: 'Change user password' })
+	@ApiResponse({
+		status: 200,
+		description: 'The user password  has been successfully changed.',
+		type: User,
+	})
+	async changePassword(
+		@Body() params: { uid: string; oldPassword: string; newPassword: string },
+	) {
+		return await this.usersService.changePassword(
+			params.uid,
+			params.oldPassword,
+			params.newPassword,
+		)
+	}
 }

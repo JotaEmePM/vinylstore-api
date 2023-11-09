@@ -4,32 +4,37 @@ API de muestra de una tienda de vinilos, desarrollada solo para fines de evidenc
 
 ## Principales caracteristicas
 
-- Ímplementación segura de usuarios
-- Rutas privadas por roles de usuario.
-- Rutas privadas por JWT
-- Registro de usuarios, artistas, albunes, canciones, versiones de discos, precios y stock.
+- Ímplementación segura de usuarios  
+- Rutas privadas por roles de usuario.  
+- Rutas privadas por JWT  
+- Registro de usuarios, artistas, albunes, canciones, versiones de discos, precios y stock.  
 
 ## Tecnologías usadas
 
-- NestJS
-- NodeJS
-- Mongo Database
+- NestJS  
+- NodeJS  
+- Mongo Database  
 
 ## ToDos
 
 ### Features
 
-- [ ] Implementar /changepassword
-- [ ] Implementar /resetpassword
-- [ ] Implementar /changepwfromreset
-- [ ] Implementación JWT
-- [ ] Implementación Login
-- [ ] Implementar envío correo
+- [ ] Implementar /changepassword  
+- [ ] Implementar /resetpassword  
+- [ ] Implementar /changepwfromreset  
+- [ ] Implementación JWT  
+- [ ] Implementación Login  
+- [ ] Implementar envío correo  
+- [ ] Implementar paginación en Gets  
+- [ ] Implementar 
+- [ ] Implementar DefaultResponseDTO en respuestas.  
+  - [ ] /users
+    
 
 ### Fixes
 
-- [X] Eliminar nodo array "password" de operación GET /users/all
-- [X] Eliminar nodo array "password" de operación GET /users
+- [x] Eliminar nodo array "password" de operación GET /users/all
+- [x] Eliminar nodo array "password" de operación GET /users
 
 ## I/D
 
