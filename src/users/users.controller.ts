@@ -45,12 +45,12 @@ export class UsersController {
 		}
 
 		const existingUser = await this.usersService.findByEmail(email)
-		if (existingUser) {
+		if (!existingUser.IsError) {
 			throw new BadRequestException('Email already in use')
 		}
 
 		const existingName = await this.usersService.findByUserName(name)
-		if (existingName) {
+		if (!existingName.IsError) {
 			throw new BadRequestException('Username already in use')
 		}
 
@@ -146,7 +146,7 @@ export class UsersController {
 			throw new HttpException('Role not found', HttpStatus.NOT_FOUND)
 		}
 
-		return await this.usersService.AddRole(params.uid, params.role)
+		return await this.usersService.addRole(params.uid, params.role)
 	}
 
 	@Put('/removerole')

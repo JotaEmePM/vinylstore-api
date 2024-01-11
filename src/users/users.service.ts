@@ -8,6 +8,9 @@ import { CreateUserDto } from './dto/create-user.dto'
 import { SelectUserDto } from './dto/select-user.dto'
 import DefaultResponseDTO from 'src/common/dto/default-response.dto'
 import UsersConstants from './users.constants'
+import { sendTestEmail } from 'src/common/utils/email'
+
+1
 
 @Injectable()
 export class UsersService {
@@ -83,7 +86,13 @@ export class UsersService {
 					Value: [],
 				} as DefaultResponseDTO
 			}
-
+			console.log('send test email')
+			sendTestEmail(
+				'perezmjosem@gmail.com',
+				'test@jotaemepm.dev',
+				'test test',
+				'esto es un test',
+			)
 			return {
 				IsError: false,
 				HttpCode: 201,
