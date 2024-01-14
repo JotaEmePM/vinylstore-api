@@ -9,7 +9,7 @@ export class EmailLogService {
 	constructor(
 		@InjectModel(EmailLog.name) private email_logModel: Model<EmailLog>,
 	) {
-		console.log('EmailLogService')
+		console.log('EmailLogService started')
 	}
 
 	async createLogEmail(newLog: CreateEmailLogDTO) {
@@ -21,8 +21,6 @@ export class EmailLogService {
 			subject: newLog.subject,
 			creationDate: new Date(),
 		})
-		console.log(newLog)
-		console.log(newLogEmail)
 
 		await newLogEmail.save()
 	}

@@ -29,7 +29,7 @@ export class UsersController {
 		private readonly usersService: UsersService,
 		private readonly emailService: EmailService,
 	) {
-		console.log('')
+		console.log('UsersController started')
 	}
 
 	@Get('/')
@@ -89,7 +89,7 @@ export class UsersController {
 		if (!responseUserCreation.IsError) {
 			const user = responseUserCreation.Value
 
-			await this.emailService.sendWelcomeTest(email, name, user!.email[0].hash)
+			await this.emailService.sendWelcomeEmail(email, name, user!.email[0].hash)
 		}
 		return responseUserCreation
 	}
@@ -116,7 +116,6 @@ export class UsersController {
 	})
 	async findByEmail(@Query() params: { email: string }) {
 		const user = await this.usersService.findByEmail(params.email)
-		if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		return user
 	}
 
@@ -129,7 +128,6 @@ export class UsersController {
 	})
 	async findByName(@Query() params: { name: string }) {
 		const user = await this.usersService.findByUserName(params.name)
-		if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		return user
 	}
 
@@ -142,7 +140,6 @@ export class UsersController {
 	})
 	async findById(@Param('id') id: string) {
 		const user = await this.usersService.findOne(id)
-		if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND)
 		return user
 	}
 
@@ -165,9 +162,23 @@ export class UsersController {
 		type: User,
 	})
 	async changeEmail(@Body() params: { uid: string; newEmail: string }) {
-		return await this.usersService.changeEmail(params.uid, params.newEmail)
+		const result = await this.usersService.changeEmail(
+			params.uid,
+			params.newEmail,
+		)
+
+		if (!result.IsError) {
+			const user = result.Value
+
+			await this.emailService.sendNewEmailConfirmation(
+				params.newEmail,
+				user!.name,
+				user!.email[user!.email.length - 1].hash,
+			)
+		}
 	}
 
+	// PRIVADA
 	@Put('/addrole')
 	@ApiOperation({ summary: 'Add role to user' })
 	@ApiResponse({
@@ -186,6 +197,7 @@ export class UsersController {
 		return await this.usersService.addRole(params.uid, params.role)
 	}
 
+	// PRIVADA
 	@Put('/removerole')
 	@ApiOperation({ summary: 'Remove role to user' })
 	@ApiResponse({
@@ -202,6 +214,21 @@ export class UsersController {
 		}
 
 		return await this.usersService.RemoveRole(params.uid, params.role)
+	}
+
+	@Post('/changepassword')
+	@ApiOperation({ summary: 'Change user password request' })
+	@ApiResponse({
+		status: 200,
+		description: 'The user password request has been successfully requested.',
+		type: User,
+	})
+	async changePasswordRequest(@Body() params: { uid: string }) {
+		return await this.usersService.changePassword(
+			params.uid,
+			params.oldPassword,
+			params.newPassword,
+		)
 	}
 
 	@Put('/changepassword')

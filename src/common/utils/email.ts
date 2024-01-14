@@ -16,11 +16,7 @@ export const sendEmail = async (
 	})
 
 	if (error) {
-		// TODO: registrar error en log.
 		return error.message
 	}
-
-	// TODO: Registrar id envío en log.
-	console.log({ data })
 	return data.id
 }

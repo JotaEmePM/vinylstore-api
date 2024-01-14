@@ -73,7 +73,11 @@ export class UsersService {
 
 	async findAll(): Promise<DefaultResponseDTO> {
 		try {
-			const users = await this.userModel.find().exec()
+			const users = await this.userModel
+				.find({
+					enabled: true,
+				})
+				.exec()
 
 			if (!users) {
 				return {
@@ -84,13 +88,7 @@ export class UsersService {
 					Value: [],
 				} as DefaultResponseDTO
 			}
-			// console.log('send test email')
-			// sendTestEmail(
-			// 	'perezmjosem@gmail.com',
-			// 	'test@jotaemepm.dev',
-			// 	'test test',
-			// 	'esto es un test',
-			// )
+
 			return {
 				IsError: true,
 				HttpCode: 201,
@@ -112,7 +110,6 @@ export class UsersService {
 
 	async delete(id: string): Promise<DefaultResponseDTO> {
 		try {
-			// TODO: cambiar función por deshabilitar usuario.
 			const user = await this.userModel
 				.updateOne({ _id: id }, { enabled: false })
 				.exec()
@@ -143,7 +140,7 @@ export class UsersService {
 			if (!user) {
 				return {
 					IsError: true,
-					HttpCode: 500,
+					HttpCode: 404,
 					Message: this.userConstants.ErrorMessages.FN_FINDONE_ERROR,
 					Value: this.userConstants.ErrorMessages.FN_FINDONE_USERNOTEXIST,
 					Location: this.userConstants.functions.FN_FINDONE,
@@ -176,7 +173,7 @@ export class UsersService {
 			if (!user) {
 				return {
 					IsError: true,
-					HttpCode: 500,
+					HttpCode: 404,
 					Message: this.userConstants.ErrorMessages.FN_FINDBYEMAIL_USERNOTEXIST,
 					Location: this.userConstants.functions.FN_FINDBYEMAIL,
 				} as DefaultResponseDTO
@@ -207,7 +204,7 @@ export class UsersService {
 			if (!user) {
 				return {
 					IsError: true,
-					HttpCode: 500,
+					HttpCode: 404,
 					Message:
 						this.userConstants.ErrorMessages.FN_FINDBYUSERNAME_USERNOTEXIST,
 					Location: this.userConstants.functions.FN_FINDBYUSERNAME,
@@ -241,7 +238,7 @@ export class UsersService {
 			if (!user) {
 				return {
 					IsError: true,
-					HttpCode: 500,
+					HttpCode: 404,
 					Message:
 						this.userConstants.ErrorMessages.FN_CHANGEEMAILL_USERNOTEXIST,
 					Location: this.userConstants.functions.FN_CHANGEEMAIL,
@@ -293,7 +290,7 @@ export class UsersService {
 				IsError: false,
 				HttpCode: 200,
 				Message: this.userConstants.SuccessMessages.FN_CHANGEEMAIL_OK,
-				Value: true,
+				Value: user,
 				Location: this.userConstants.functions.FN_CHANGEEMAIL,
 			} as DefaultResponseDTO
 		} catch (err) {
@@ -444,6 +441,19 @@ export class UsersService {
 		return true
 	}
 
+	async changePasswordRequest(userId: string): Promise<DefaultResponseDTO> {
+		const user = await this.userModel.findById(userId).exec()
+		if (!user) {
+			return {
+				HttpCode: 404,
+				IsError: true,
+				Message: 'Usuario no encontrado',
+				Value: null,
+				Location: 'PENDING',
+			}
+		}
+	}
+
 	async changePassword(
 		userId: string,
 		oldPassword: string,
@@ -474,7 +484,7 @@ export class UsersService {
 			password.hash,
 			password.salt,
 		)
-		console.log(oldPasswordCheck)
+
 		if (!oldPasswordCheck)
 			return {
 				HttpCode: 0,
