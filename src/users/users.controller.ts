@@ -1,5 +1,4 @@
 import {
-	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -11,23 +10,34 @@ import {
 	Put,
 	Query,
 } from '@nestjs/common'
-import { User } from './schemas/user.schema'
-import { UsersService } from './users.service'
-import { CreateUserDto } from './dto/create-user.dto'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { SelectUserDto } from './dto/select-user.dto'
+import DefaultResponseDTO from 'src/common/dto/default-response.dto'
 import { RoleAvailable } from 'src/common/role/role.list'
+import { EmailService } from 'src/email/email.service'
+import { CreateUserDto } from './dto/create-user.dto'
+import { User } from './schemas/user.schema'
+import UsersConstants from './users.constants'
+import { UsersService } from './users.service'
 
 @ApiTags('users')
 @Controller('/users')
 export class UsersController {
-	constructor(private readonly usersService: UsersService) {}
+	userConstants = new UsersConstants()
+
+	// eslint-disable-next-line prettier/prettier
+	constructor(
+		private readonly usersService: UsersService,
+		private readonly emailService: EmailService,
+	) {
+		console.log('')
+	}
 
 	@Get('/')
-	@ApiOperation({ summary: 'Get all users' })
-	async findAll(): Promise<SelectUserDto[]> {
-		const response = await this.usersService.findAll()
-		return response.Value
+	@ApiOperation({
+		description: 'List all active users',
+	})
+	async findAll(): Promise<DefaultResponseDTO> {
+		return await this.usersService.findAll()
 	}
 
 	@Post()
@@ -37,24 +47,51 @@ export class UsersController {
 		description: 'The user has been successfully created.',
 		type: User,
 	})
-	async create(@Body() createUserDto: CreateUserDto) {
+	async create(
+		@Body() createUserDto: CreateUserDto,
+	): Promise<DefaultResponseDTO> {
 		const { name, email, password } = createUserDto
 
-		if (!email || !password) {
-			throw new BadRequestException('Email and password are required')
+		if (!name || !email || !password) {
+			return {
+				IsError: false,
+				HttpCode: 201,
+				Message: this.userConstants.ErrorMessages.FN_CREATE_VALIDATIONERROR,
+				Location: this.userConstants.functions.FN_CREATE,
+				Value: {},
+			} as DefaultResponseDTO
 		}
 
 		const existingUser = await this.usersService.findByEmail(email)
 		if (!existingUser.IsError) {
-			throw new BadRequestException('Email already in use')
+			return {
+				IsError: false,
+				HttpCode: 201,
+				Message: this.userConstants.ErrorMessages.FN_CREATE_EMAILEXIST,
+				Location: this.userConstants.functions.FN_CREATE,
+				Value: {},
+			} as DefaultResponseDTO
 		}
 
 		const existingName = await this.usersService.findByUserName(name)
 		if (!existingName.IsError) {
-			throw new BadRequestException('Username already in use')
+			return {
+				IsError: false,
+				HttpCode: 201,
+				Message: this.userConstants.ErrorMessages.FN_CREATE_USERNAMEEXIST,
+				Location: this.userConstants.functions.FN_CREATE,
+				Value: {},
+			} as DefaultResponseDTO
 		}
 
-		await this.usersService.create(createUserDto)
+		const responseUserCreation = await this.usersService.create(createUserDto)
+
+		if (!responseUserCreation.IsError) {
+			const user = responseUserCreation.Value
+
+			await this.emailService.sendWelcomeTest(email, name, user!.email[0].hash)
+		}
+		return responseUserCreation
 	}
 
 	@ApiOperation({ summary: 'Delete user' })
@@ -64,10 +101,10 @@ export class UsersController {
 	})
 	@Delete(':id')
 	async delete(@Param('id') id: string) {
-		const user = this.usersService.findOne(id)
-		if (!user) throw new Error('User not found')
+		const user = await this.usersService.findOne(id)
+		if (user.IsError) return user
 
-		return this.usersService.delete(id)
+		return await this.usersService.delete(id)
 	}
 
 	@Get('/email')

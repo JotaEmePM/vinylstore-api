@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 
-export const sendTestEmail = async (
+export const sendEmail = async (
 	to: string,
 	from: string,
 	subject: string,
@@ -16,8 +16,11 @@ export const sendTestEmail = async (
 	})
 
 	if (error) {
-		return console.log({ error })
+		// TODO: registrar error en log.
+		return error.message
 	}
 
+	// TODO: Registrar id envío en log.
 	console.log({ data })
+	return data.id
 }

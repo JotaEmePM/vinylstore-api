@@ -3,12 +3,11 @@ import { InjectModel } from '@nestjs/mongoose'
 import { User, UserDocument } from './schemas/user.schema'
 
 import { Model } from 'mongoose'
+import DefaultResponseDTO from 'src/common/dto/default-response.dto'
 import { generateUUID, hashPassword, verifyPassword } from 'src/common/security'
 import { CreateUserDto } from './dto/create-user.dto'
 import { SelectUserDto } from './dto/select-user.dto'
-import DefaultResponseDTO from 'src/common/dto/default-response.dto'
 import UsersConstants from './users.constants'
-import { sendTestEmail } from 'src/common/utils/email'
 
 1
 
@@ -16,7 +15,8 @@ import { sendTestEmail } from 'src/common/utils/email'
 export class UsersService {
 	userConstants = new UsersConstants()
 
-	constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+	// eslint-disable-next-line prettier/prettier
+	constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
 	async create(createUserDto: CreateUserDto): Promise<DefaultResponseDTO> {
 		try {
@@ -51,15 +51,13 @@ export class UsersService {
 					},
 				],
 			})
-
-			// TODO: enviar email de confirmación de email.
-
+			createdUser.save()
 			return {
 				IsError: false,
 				HttpCode: 201,
 				Message: this.userConstants.SuccessMessages.FN_CREATE_OK,
 				Location: this.userConstants.functions.FN_CREATE,
-				Value: createdUser.save(),
+				Value: createdUser,
 			} as DefaultResponseDTO
 		} catch (err) {
 			if (err && err instanceof Error)
@@ -81,20 +79,20 @@ export class UsersService {
 				return {
 					IsError: false,
 					HttpCode: 201,
-					Message: this.userConstants.SuccessMessages.FN_FINDALL_OK,
+					Message: this.userConstants.ErrorMessages.FN_FINDALL_ERROR,
 					Location: this.userConstants.functions.FN_FINDALL,
 					Value: [],
 				} as DefaultResponseDTO
 			}
-			console.log('send test email')
-			sendTestEmail(
-				'perezmjosem@gmail.com',
-				'test@jotaemepm.dev',
-				'test test',
-				'esto es un test',
-			)
+			// console.log('send test email')
+			// sendTestEmail(
+			// 	'perezmjosem@gmail.com',
+			// 	'test@jotaemepm.dev',
+			// 	'test test',
+			// 	'esto es un test',
+			// )
 			return {
-				IsError: false,
+				IsError: true,
 				HttpCode: 201,
 				Message: this.userConstants.SuccessMessages.FN_FINDALL_OK,
 				Location: this.userConstants.functions.FN_FINDALL,
@@ -115,7 +113,11 @@ export class UsersService {
 	async delete(id: string): Promise<DefaultResponseDTO> {
 		try {
 			// TODO: cambiar función por deshabilitar usuario.
-			this.userModel.deleteOne({ _id: id }).exec()
+			const user = await this.userModel
+				.updateOne({ _id: id }, { enabled: false })
+				.exec()
+			user['enabled'] = false
+
 			return {
 				IsError: false,
 				HttpCode: 201,
